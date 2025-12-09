@@ -1,5 +1,5 @@
-import { Bot } from "lucide-react";
 import { ProjectCard } from "./components/ProjectCard";
+import { projects } from "./project_info";
 
 export default function Home() {
   return (
@@ -13,14 +13,17 @@ export default function Home() {
         </p>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <ProjectCard
-            name="MiniWiki"
-            description="Chat with your repository using AI. Ask questions about your codebase and get intelligent answers powered by Gemini."
-            href="/index_repo"
-            icon={Bot}
-            gradientFrom="from-blue-500"
-            gradientTo="to-blue-700"
-          />
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              name={project.name}
+              description={project.description}
+              href={project.href}
+              icon={project.icon}
+              gradientFrom={project.gradientFrom}
+              gradientTo={project.gradientTo}
+            />
+          ))}
         </div>
       </div>
     </main>
