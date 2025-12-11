@@ -10,7 +10,9 @@ interface SaleItemCardProps {
 }
 
 export function SaleItemCard({ item, onEdit, onDelete }: SaleItemCardProps) {
-  const totalValue = item.quantity * item.unitPrice;
+  const quantity = item.quantity ?? 0;
+  const unitPrice = item.unitPrice ?? 0;
+  const totalValue = quantity * unitPrice;
 
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 hover:shadow-lg transition-shadow">
@@ -52,7 +54,7 @@ export function SaleItemCard({ item, onEdit, onDelete }: SaleItemCardProps) {
         <div>
           <span className="text-gray-500">Unit Price:</span>
           <span className="ml-2 font-medium text-gray-900">
-            ${item.unitPrice.toFixed(2)}
+            ${unitPrice.toFixed(2)}
           </span>
         </div>
         <div>

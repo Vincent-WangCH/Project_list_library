@@ -9,9 +9,9 @@ interface SalesSummaryProps {
 
 export function SalesSummary({ items }: SalesSummaryProps) {
   const totalItems = items.length;
-  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalQuantity = items.reduce((sum, item) => sum + (item.quantity ?? 0), 0);
   const totalValue = items.reduce(
-    (sum, item) => sum + item.quantity * item.unitPrice,
+    (sum, item) => sum + (item.quantity ?? 0) * (item.unitPrice ?? 0),
     0
   );
   const uniqueCategories = new Set(items.map((item) => item.category)).size;

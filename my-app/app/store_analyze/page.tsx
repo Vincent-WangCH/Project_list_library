@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ShoppingCart, Plus, Search, RefreshCw } from "lucide-react";
+import { ShoppingCart, Plus, Search, RefreshCw, Server } from "lucide-react";
 import { SaleItem, CreateSaleItemInput } from "./types";
 import { SaleItemCard } from "./components/SaleItemCard";
 import { SaleItemForm } from "./components/SaleItemForm";
@@ -10,16 +10,57 @@ import { SalesSummary } from "./components/SalesSummary";
 export default function StoreAnalyzePage() {
   const [items, setItems] = useState<SaleItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBackendWaking, setIsBackendWaking] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<SaleItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch all items
+  // Health check function to wake up the backend
+  const checkBackendHealth = useCallback(async (): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/health");
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // Fetch all items with health check
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
+    setIsBackendWaking(false);
+
     try {
-      const response = await fetch("/api/store_analyze");
+      // First, try to make the request
+      let response = await fetch("/api/store_analyze");
+
+      // If backend is waking up (503), show the waking state and retry with health check
+      if (response.status === 503) {
+        const data = await response.json();
+        if (data.isBackendWaking) {
+          setIsBackendWaking(true);
+
+          // Wait for backend to wake up using health check
+          let isHealthy = false;
+          let retryCount = 0;
+          const maxRetries = 12; // Max 12 retries (about 60 seconds with 5s intervals)
+
+          while (!isHealthy && retryCount < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+            isHealthy = await checkBackendHealth();
+            retryCount++;
+          }
+
+          if (isHealthy) {
+            // Retry the original request
+            response = await fetch("/api/store_analyze");
+          }
+        }
+      }
+
+      setIsBackendWaking(false);
+
       if (response.ok) {
         const data = await response.json();
         setItems(data);
@@ -28,8 +69,9 @@ export default function StoreAnalyzePage() {
       console.error("Error fetching items:", error);
     } finally {
       setIsLoading(false);
+      setIsBackendWaking(false);
     }
-  }, []);
+  }, [checkBackendHealth]);
 
   useEffect(() => {
     fetchItems();
@@ -94,9 +136,9 @@ export default function StoreAnalyzePage() {
   // Filter items based on search
   const filteredItems = items.filter(
     (item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      (item.name ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description ?? "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.category ?? "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -155,8 +197,25 @@ export default function StoreAnalyzePage() {
 
         {/* Items Grid */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
+          <div className="flex flex-col items-center justify-center py-12">
+            {isBackendWaking ? (
+              <>
+                <Server className="w-12 h-12 text-amber-500 mb-4 animate-pulse" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Waking up the server...
+                </h3>
+                <p className="text-gray-500 text-center max-w-md">
+                  The backend is hosted on a free tier service that sleeps when inactive.
+                  Please wait while we wake it up. This may take up to 30-60 seconds.
+                </p>
+                <div className="mt-4 flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4 text-amber-500 animate-spin" />
+                  <span className="text-sm text-amber-600">Connecting to server...</span>
+                </div>
+              </>
+            ) : (
+              <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
+            )}
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="text-center py-12">

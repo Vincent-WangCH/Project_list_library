@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkBackendHealth } from "@/app/lib/healthCheck";
 
 // Backend API URL from environment variable
 const BACKEND_API_URL = process.env.STORE_API_URL;
@@ -13,6 +14,15 @@ export async function GET(
       return NextResponse.json(
         { error: "Backend API URL not configured" },
         { status: 500 }
+      );
+    }
+
+    // Perform health check before making the actual request
+    const healthResult = await checkBackendHealth();
+    if (!healthResult.healthy) {
+      return NextResponse.json(
+        { error: healthResult.message, isBackendWaking: true },
+        { status: 503 }
       );
     }
 
@@ -57,6 +67,15 @@ export async function PUT(
       );
     }
 
+    // Perform health check before making the actual request
+    const healthResult = await checkBackendHealth();
+    if (!healthResult.healthy) {
+      return NextResponse.json(
+        { error: healthResult.message, isBackendWaking: true },
+        { status: 503 }
+      );
+    }
+
     const { id } = await params;
     const input = await req.json();
 
@@ -97,6 +116,15 @@ export async function DELETE(
       return NextResponse.json(
         { error: "Backend API URL not configured" },
         { status: 500 }
+      );
+    }
+
+    // Perform health check before making the actual request
+    const healthResult = await checkBackendHealth();
+    if (!healthResult.healthy) {
+      return NextResponse.json(
+        { error: healthResult.message, isBackendWaking: true },
+        { status: 503 }
       );
     }
 
