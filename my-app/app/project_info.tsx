@@ -1,4 +1,4 @@
-import { Bot, ShoppingCart, LucideIcon } from "lucide-react";
+import { Bot, ShoppingCart, Sparkles, LucideIcon } from "lucide-react";
 
 export interface ProjectInfo {
   id: string;
@@ -30,6 +30,16 @@ export const projects: ProjectInfo[] = [
     icon: ShoppingCart,
     gradientFrom: "from-emerald-500",
     gradientTo: "to-teal-700",
+  },
+  {
+    id: "easter_egg_effect",
+    name: "Particle Effect Visualizer",
+    description:
+      "Interactive particle effect visualization with multiple display modes. Transform between Line, Christmas Tree, and Heart shapes with smooth animated transitions and themed particles.",
+    href: "/easter_egg_effect",
+    icon: Sparkles,
+    gradientFrom: "from-purple-500",
+    gradientTo: "to-pink-600",
   },
 ];
 

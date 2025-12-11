@@ -3,6 +3,7 @@
 import { useChat } from "@ai-sdk/react";
 import { Send, Bot, User } from "lucide-react";
 import { useState } from "react";
+import { HomeButton } from "../components/HomeButton";
 
 const MessageList = ({ messages }: { messages: any[] }) => {
   if (messages.length === 0) {
@@ -99,8 +100,11 @@ export default function Home() {
 
   return (
     <main className="flex flex-col h-screen bg-white">
+      {/* Home button */}
+      <HomeButton variant="light" />
+
       {/* Header */}
-      <header className="border-b border-gray-200 px-6 py-4">
+      <header className="border-b border-gray-200 px-6 py-4 pl-20">
         <div className="flex items-center gap-2">
           <Bot className="w-6 h-6 text-blue-600" />
           <h1 className="text-xl font-semibold text-gray-900">MiniWiki</h1>

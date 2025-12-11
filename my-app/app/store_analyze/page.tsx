@@ -6,6 +6,7 @@ import { SaleItem, CreateSaleItemInput } from "./types";
 import { SaleItemCard } from "./components/SaleItemCard";
 import { SaleItemForm } from "./components/SaleItemForm";
 import { SalesSummary } from "./components/SalesSummary";
+import { HomeButton } from "../components/HomeButton";
 
 export default function StoreAnalyzePage() {
   const [items, setItems] = useState<SaleItem[]>([]);
@@ -143,9 +144,12 @@ export default function StoreAnalyzePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Home button */}
+      <HomeButton variant="dark" />
+
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex items-center justify-between pl-14">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-emerald-100 rounded-lg">
               <ShoppingCart className="w-6 h-6 text-emerald-600" />
